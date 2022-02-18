@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Bootstrap Material Admin</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="robots" content="all,follow">
+	<link rel="stylesheet" href="../../../static/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../../../static/css/style.default.css" id="theme-stylesheet">
+	<script src="../../../static/js/jquery-1.9.1.min.js"></script>
+    <script src="../../../static/js/md5.js"></script>
+</head>
+
+<body>
+	<div class="page login-page">
+		<div class="container d-flex align-items-center">
+			<div class="form-holder has-shadow">
+				<div class="row">
+					<!-- Logo & Information Panel-->
+					<div class="col-lg-6">
+						<div class="info d-flex align-items-center">
+							<div class="content">
+								<div class="logo">
+									<h1>欢迎注册</h1>
+								</div>
+								<p>报文管理系统</p>
+							</div>
+						</div>
+					</div>
+					<!-- Form Panel    -->
+					<div class="col-lg-6 bg-white">
+						<div class="form d-flex align-items-center">
+							<div class="content">
+								<form method="post" action="/register/" class="form-validate" id="loginFrom" onsubmit="encrypt()">
+									{% csrf_token %}
+									<div class="form-group">
+										<input id="login-username" type="text" name="account" required
+											data-msg="请输入用户名" placeholder="账号" class="input-material">
+									</div>
+									<div class="form-group">
+										<input id="login-password" type="password" name="password" required
+											data-msg="请输入密码" placeholder="密码" class="input-material" onblur="check2pwd()" onchange="check2pwd()">
+									</div>
+                                    <div class="form-group">
+										<input id="login-password-repeat" type="password" name="password-repeat" required
+											data-msg="请输入密码" placeholder="再次输入密码" class="input-material" onblur="check2pwd()" onchange="check2pwd()">
+									</div>
+                                    {% if info %}
+                                    <span hidden id="info" style="color: red;">{{msg}}{{info}}</span>
+                                    {% endif %}
+                                    <span id="info" style="color: red;">{{info}}</span>
+                                    <div class="form-group">
+                                        <select id="addSta-level" class="form-control" name="actor">
+                                            <option value="管理员">管理员</option>
+                                            <option value="普通用户">普通用户</option>
+                                        </select>
+                                    </div>
+                                    <a href="/" style="width: 195px;" class="btn btn-outline-primary">返回</a>
+                                    <button id="login" type="submit" style="width: 195px;margin-bottom: 0px;" class="btn btn-outline-primary">注册</button>
+								</form>
+                                <br/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	function encrypt() {
+        document.getElementById('login-password').value = hex_md5(document.getElementById('login-password').value)
+    }
+    function check2pwd() {
+        var pwd1 = $('#login-password').val();
+        var pwd2 = $('#login-password-repeat').val();
+        console.log(pwd1);
+        console.log(pwd2);
+        if(pwd1 != pwd2) {
+            $('#info').html('两次密码不一致!');
+            $('#info').attr('hidden',false);
+            $('#login').attr('disabled',true);
+        } else {
+            $('#info').attr('hidden',true);
+            $('#info').html('');
+            $('#login').attr('disabled',false);
+        }
+    }
+</script>
+</html>

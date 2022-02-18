@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>报文管理系统</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="robots" content="all,follow">
+	<link rel="stylesheet" href="../../../static/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../../../static/css/bootstrap.css">
+	<link rel="stylesheet" href="../../../static/css/style.default.css" id="theme-stylesheet">
+	<script src="../../../static/js/jquery-1.9.1.min.js"></script>
+	<script src="../../../static/js/bootstrap.min.js"></script>
+    <script src="../../../static/js/md5.js"></script>
+	<script src="../../../static/js/echarts.min.js"></script>
+	<style type="text/css">
+		body {
+			background-color: #4C7E81;;
+		}
+		table {
+			table-layout: fixed;
+		}
+		td {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+		td:hover{
+			text-overflow:inherit; 
+			overflow: visible; 
+			white-space: pre-line;
+		}
+		a {
+			table-layout: fixed;
+		}
+		a:hover{
+			text-overflow:inherit;
+			overflow: visible; 
+			white-space: pre-line;
+		}
+		
+		
+	</style>
+		
+</head>
+<body>
+	<header class="col-md-6 offset-md-3">
+		<div class="">
+			<nav class="navbar custom_nav-container" style="background-color: #4C7E81;box-shadow: 0 0 ;">
+				<a class="navbar-brand" href="#"><span style="color: white;">报文管理系统</span></a>
+				<div class="col-md-6">
+					<a class="navbar logout" href="" style="color: white;float:right;text-align: center"><span>退出</span></a>
+					<span class="navbar" href="#" style="color: white;float:right;">
+						欢迎您：
+						{% if actor == "admin" %}
+							管理员-{{user.account}}
+						{% endif %}
+						{% if actor == "user" %}
+							普通用户-{{user.account}}
+						{% endif %}
+					</span>
+				</div>
+			</nav>
+		</div>
+	</header>
+	
+	<!-- main -->
+	<section class="slider_section">
+		<div class="container">
+			<div class="detail-box card" style="background: #f9ffff;margin-top: 0px;padding: 26px;margin-bottom: 50px;">
+				<ul class="nav nav-tabs">
+					<li class="nav-item">
+						<a class="nav-link active" aria-current="page" href="#">首页</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">查看请求报文</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">查看响应报文</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">IP地址特征</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">报文特征</a>
+					</li>
+				</ul>
+
+				<div id="indexPage">
+					aaa
+				</div>
+
+				<div id="showRequest" style="text-align: left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th scope="col">id</th>
+								<th scope="col">ip_src</th>
+								<th scope="col">ip_dst</th>
+								<th scope="col">port_src</th>
+								<th scope="col">port_dst</th>
+								<th scope="col">host</th>
+								<th scope="col">uri</th>
+								<th scope="col">user-agent</th>
+								<th scope="col">cookie</th>
+								<th scope="col">frame-len</th>
+								<th scope="col">path</th>
+							</tr>
+						</thead>
+						<tbody id="requestTable">
+						</tbody>
+					</table>
+					<nav aria-label="Page navigation">
+						<div style="display: inline;">
+							<label>
+								 每页
+								 <select id="pageSize" aria-controls="DataTables_Table_0" size="1" name="DataTables_Table_0_length">
+									 <option selected="selected" value="10">10</option>
+									 <option value="20">20</option>
+									 <option value="30">30</option>
+									 <option value="50">50</option>
+								 </select>
+								 条记录
+							 </label>
+							<span style="display: inline-block; font-size: 14px;" id="num"></span>
+							<ul class="pagination justify-content-end" id="page-li" style="display: inline-block;float: right"></ul>
+						</div>
+					</nav>
+				</div>
+				<div id="showResponse" style="text-align: left">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th scope="col">id</th>
+								<th scope="col">ip_src</th>
+								<th scope="col">ip_dst</th>
+								<th scope="col">port_src</th>
+								<th scope="col">port_dst</th>
+								<th scope="col">content-type</th>
+								<th scope="col">frame-len</th>
+								<th scope="col">path</th>
+							</tr>
+						</thead>
+						<tbody id="responseTable">
+						</tbody>
+					</table>
+					<nav aria-label="Page navigation">
+						<div style="display: inline;">
+							<label>
+								 每页
+								 <select id="pageSize" aria-controls="DataTables_Table_0" size="1" name="DataTables_Table_0_length">
+									 <option selected="selected" value="10">10</option>
+									 <option value="20">20</option>
+									 <option value="30">30</option>
+									 <option value="50">50</option>
+								 </select>
+								 条记录
+							 </label>
+							<span style="display: inline-block; font-size: 14px;" id="num"></span>
+							<ul class="pagination justify-content-end" id="page-li" style="display: inline-block;float: right"></ul>
+						</div>
+					</nav>
+				</div>
+				<div id="ipNum">
+					<div class="col-md-6" style="float: left;">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th scope="col">源地址</th>
+									<th scope="col">数量</th>
+									<th scope="col">兴趣爱好</th>
+								</tr>
+							</thead>
+							<tbody id="src_num">
+							</tbody>
+						</table>
+					</div>
+					<div class="col-md-6" style="float: right;">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th scope="col">目的地址</th>
+									<th scope="col">数量</th>
+								</tr>
+							</thead>
+							<tbody id="dst_num">
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div id="feature">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th scope="col">类型</th>
+								<th scope="col">最大帧长</th>
+								<th scope="col">最小帧长</th>
+								<th scope="col">平均帧长</th>
+							</tr>
+						</thead>
+						<tbody id="frameInfo">
+						</tbody>
+					</table>
+					<div id="chart1" style="float:left;width: 500px;height:600px;"></div>
+					<div id="chart2" style="float:right;width: 500px;height:600px;"></div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- 表格 -->
+</body>
+<script type="text/javascript">
+	// 两位小数点
+	function changeTwoDecimal(x) {
+		var f_x = parseFloat(x);
+		if (isNaN(f_x)) {
+			alert('function:changeTwoDecimal->parameter error');
+			return false;
+		}
+		f_x = Math.round(f_x *100)/100;
+		return f_x;
+	}
+	// ip num
+	function listIpNum() {
+		$.get(
+			'/show/listSrcIpNum/',
+			function(data) {
+				// console.log(data)
+				var content = "";
+				for (var key in data) {
+					content+="<tr><td>"+key+"</td><td>"+data[key]+"</td></tr>";
+				}
+				$('#src_num').html(content);
+			}
+		)
+		$.get(
+			'/show/listDstIpNum/',
+			function(data) {
+				// console.log(data)
+				var content = "";
+				for (var key in data) {
+					content+="<tr><td>"+key+"</td><td>"+data[key]+"</td></tr>";
+				}
+				$('#dst_num').html(content);
+			}
+		)
+	}
+	// feature
+	function listFrameLengthInfo() {
+		var content="";
+		$.get(
+			'/show/listResponseFrameLengthInfo/',
+			function(data) {
+				// console.log(data);
+				content += "<tr><th>响应报文</th>"
+				for(let i = 0; i < 3; i++) {
+					content+="<td>"+changeTwoDecimal(data[i])+"</td>";
+				}
+				content+="</tr>";
+				$.get(
+					'/show/listRequestFrameLengthInfo/',
+					function(data) {
+						// console.log(data);
+						content += "<tr><th>请求报文</th>"
+						for(let i = 0; i < 3; i++) {
+							content+="<td>"+changeTwoDecimal(data[i])+"</td>";
+						}
+						content+="</tr>";
+						$('#frameInfo').html(content);
+					}
+				)
+			}
+		)
+	}
+	// request+response
+	function listRequest() {
+		$.get(
+			'/show/listRequests/',
+			function(data) {
+				var content = "";
+				// console.log(data)
+				for(let i = 0; i < data.length; i++) {
+					content+="<tr>";
+					for(let j = 0; j < 11; j++) {
+						if(j == 5) {
+							content+="<td><a href='#'>"+data[i][j]+"</a></td>";
+							continue;
+						}
+						content+="<td>"+data[i][j]+"</td>";
+					}
+					content+="</tr>";
+				}
+				$('#requestTable').html(content);
+			}
+		)
+	}
+	function listResponse() {
+		$.get(
+			'/show/listResponses/',
+			function(data) {
+				var content = "";
+				// console.log(data)
+				for(let i = 0; i < data.length; i++) {
+					content+="<tr>";
+					for(let j = 0; j < 8; j++) {
+						if(j == 5) {
+							content+="<td><a href='#'>"+data[i][j]+"</a></td>";
+							continue;
+						}
+						content+="<td>"+data[i][j]+"</td>";
+					}
+					content+="</tr>";
+				}
+				$('#responseTable').html(content);
+			}
+		)
+	}
+	// nav切换
+	$(".nav-item").click(function (){
+		$(this).find(".nav-link").addClass("active")
+		$(this).siblings().find(".nav-link").removeClass("active")
+		var text = $(this).find(".nav-link").text()
+		if(text === '首页'){
+			$("#indexPage").show()
+			$("#showRequest").hide()
+			$("#showResponse").hide()
+			$('#ipNum').hide()
+			$("#feature").hide()
+		}else if(text === '查看请求报文'){
+			listRequest();
+			$("#indexPage").hide()
+			$("#showRequest").show()
+			$("#showResponse").hide()
+			$('#ipNum').hide()
+			$("#feature").hide()
+		}else if(text === '查看响应报文'){
+			listResponse();
+			$("#indexPage").hide()
+			$("#showRequest").hide()
+			$("#showResponse").show()
+			$('#ipNum').hide()
+			$("#feature").hide()
+		} else if(text === 'IP地址特征') {
+			listIpNum();
+			$("#indexPage").hide()
+			$("#showRequest").hide()
+			$("#showResponse").hide()
+			$('#ipNum').show()
+			$("#feature").hide()
+		} else {
+			listFrameLengthInfo();
+			getChart1();
+			getChart2();
+			$("#indexPage").hide()
+			$("#showRequest").hide()
+			$("#showResponse").hide()
+			$('#ipNum').hide()
+			$("#feature").show()
+		}
+	});
+	// table
+	
+	function getChart1() {
+		var myChart1 = echarts.init(document.getElementById('chart1'));
+		$.get(
+			'/show/listProperty/',
+			function(data) {
+				var sum = data.num[0]+data.num[1]+data.num[2]+data.num[3]+data.num[4];
+				var option = {
+					title: {
+						text: 'Referer of a Website',
+						subtext: 'Fake Data',
+						left: 'center',
+					},
+					tooltip: {
+						trigger: 'item'
+					},
+					legend: {
+						orient: 'vertical',
+						left: 'left'
+					},
+					series: [
+						{
+						name: 'Access From',
+						type: 'pie',
+						radius: '50%',
+						data: [
+							{ value: data.num[0], name: '游戏公司 '+changeTwoDecimal(data.num[0]/sum)*100+'%' },
+							{ value: data.num[1], name: '科技公司 '+changeTwoDecimal(data.num[1]/sum)*100+'%' },
+							{ value: data.num[2], name: '政府单位 '+changeTwoDecimal(data.num[2]/sum)*100+'%' },
+							{ value: data.num[3], name: '高校 '+changeTwoDecimal(data.num[3]/sum)*100+'%' },
+							{ value: data.num[4], name: '医疗机构 '+changeTwoDecimal(data.num[4]/sum)*100+'%' }
+						],
+						emphasis: {
+							itemStyle: {
+							shadowBlur: 10,
+							shadowOffsetX: 0,
+							shadowColor: 'rgba(0, 0, 0, 0.5)'
+							}
+						}
+						}
+					]
+				};
+				myChart1.setOption(option,true);
+			}
+		)
+	}
+	function getChart2() {
+		var myChart2 = echarts.init(document.getElementById('chart2'));
+		$.get(
+			'/show/listRequestType/',
+			function(data) {
+				var sum = data.num[0]+data.num[1]+data.num[2];
+				var option = {
+					title: {
+						text: 'Referer of a Website',
+						subtext: 'Fake Data',
+						left: 'center'
+					},
+					tooltip: {
+						trigger: 'item'
+					},
+					legend: {
+						orient: 'vertical',
+						left: 'left'
+					},
+					series: [
+						{
+						name: 'Access From',
+						type: 'pie',
+						radius: '50%',
+						data: [
+							{ value: data.num[0], name: 'get '+changeTwoDecimal(data.num[0]/sum)*100+'%' },
+							{ value: data.num[1], name: 'post '+changeTwoDecimal(data.num[1]/sum)*100+'%' },
+							{ value: data.num[2], name: 'head '+changeTwoDecimal(data.num[2]/sum)*100+'%' },
+						],
+						emphasis: {
+							itemStyle: {
+							shadowBlur: 10,
+							shadowOffsetX: 0,
+							shadowColor: 'rgba(0, 0, 0, 0.5)'
+							}
+						}
+						}
+					]
+				};
+				myChart2.setOption(option,true);
+			}
+		)
+	}
+	$(document).ready(function(){
+		$(".nav-item")[0].click();
+		
+	})
+</script>
+</html>
